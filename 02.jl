@@ -1,4 +1,12 @@
+#=
+Load data, define useful functions
+=# 
+
 pwords = readlines("02.txt")
+
+function count_char(look_for, look_in)
+    length(collect(eachmatch(Regex("$look_for"), look_in)))
+end
 
 #= Part 1:
     The shopkeeper at the North Pole Toboggan Rental Shop is having a bad day. 
@@ -26,18 +34,6 @@ pwords = readlines("02.txt")
     How many passwords are valid according to their policies?
 =#
 
-global n_valid_pwords = 0
-for i = 1:length(pwords)
-    split_words = split(pwords[i])
-    look_for = replace(split_words[2], ":" => "")
-    min_max = parse.(Int, split(split_words[1], "-"))
-    letter_count = length(collect(eachmatch(Regex("$look_for"), split_words[3])))
-
-    if (letter_count >= min_max[1] && letter_count <= min_max[2])
-        global n_valid_pwords = n_valid_pwords + 1
-    end
-end
-println("part 1: $n_valid_pwords")
 
 #= Part 2:
     While it appears you validated the passwords correctly, they don't seem to be what the Official Toboggan 
@@ -62,17 +58,23 @@ println("part 1: $n_valid_pwords")
 
 =#
 
-global n_valid_pwords = 0
+global valid_part1 = 0
+global valid_part2 = 0
 for i = 1:length(pwords)
-    split_words = split(pwords[i])
-    look_for = replace(split_words[2], ":" => "")
-    look_in = split_words[3]
-    pos = parse.(Int, split(split_words[1], "-"))
-    letter_count = length(collect(eachmatch(Regex("$look_for"), look_in[pos])))
+    split_words = split(replace(pwords[i], ":" => ""))
+    letter_count = count_char(split_words[2], split_words[3])
+    specs = parse.(Int, split(split_words[1], "-"))
+    
+    if (letter_count >= specs[1] && letter_count <= specs[2])
+        global valid_part1 += 1
+    end
 
-    if (letter_count == 1)
-        global n_valid_pwords = n_valid_pwords + 1
+    if count_char(split_words[2], split_words[3][specs]) == 1
+        global valid_part2 += 1
     end
 end
-println("part 2: $n_valid_pwords")
+println("part 1: $valid_part1\npart 2: $valid_part2")
 
+
+
+pwords = ["15-19 g: ggggfgggjgggggggghg", "1-4 t: stth"]
