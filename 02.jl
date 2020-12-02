@@ -75,6 +75,3 @@ for i = 1:length(pwords)
 end
 println("part 1: $valid_part1\npart 2: $valid_part2")
 
-
-
-pwords = ["15-19 g: ggggfgggjgggggggghg", "1-4 t: stth"]
