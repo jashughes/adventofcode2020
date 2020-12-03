@@ -7,7 +7,8 @@ function count_char(look_for, look_in)
 end
 
 #= Function to check both passwords requirements =#
-function check_passwords(valid_part1, valid_part2, pwords)
+function check_passwords(pwords)
+    valid_part1, valid_part2 = 0, 0
     for i = 1:length(pwords)
         split_words = split(replace(pwords[i], ":" => ""))
         letter_count = count_char(split_words[2], split_words[3])
@@ -25,7 +26,7 @@ function check_passwords(valid_part1, valid_part2, pwords)
 end
 
 #= Solve =#
-valid_part1, valid_part2 = check_passwords(0, 0, pwords)
+valid_part1, valid_part2 = check_passwords(pwords)
 println("part 1: $valid_part1\npart 2: $valid_part2")
 
 #= Part 1:
