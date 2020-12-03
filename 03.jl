@@ -7,12 +7,8 @@ function slide(trees,dx, dy)
     x, y = 1, 1
 
     while y < length(trees)
-        x += dx
         y += dy
-
-        if x > tree_width
-            x = (x - tree_width)
-        end
+        x = mod1(x + dx, tree_width)
 
         if trees[y][x] == '#'
             tree_count += 1
