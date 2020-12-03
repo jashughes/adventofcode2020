@@ -1,12 +1,32 @@
-#=
-Load data, define useful functions
-=# 
-
+#= Load data =# 
 pwords = readlines("02.txt")
 
+#= Count matching characters =# 
 function count_char(look_for, look_in)
     length(collect(eachmatch(Regex("$look_for"), look_in)))
 end
+
+#= Function to check both passwords requirements =#
+function check_passwords(valid_part1, valid_part2, pwords)
+    for i = 1:length(pwords)
+        split_words = split(replace(pwords[i], ":" => ""))
+        letter_count = count_char(split_words[2], split_words[3])
+        specs = parse.(Int, split(split_words[1], "-"))
+        
+        if (letter_count >= specs[1] && letter_count <= specs[2])
+            valid_part1 += 1
+        end
+
+        if count_char(split_words[2], split_words[3][specs]) == 1
+            valid_part2 += 1
+        end
+    end
+    return valid_part1, valid_part2
+end
+
+#= Solve =#
+valid_part1, valid_part2 = check_passwords(0, 0, pwords)
+println("part 1: $valid_part1\npart 2: $valid_part2")
 
 #= Part 1:
     The shopkeeper at the North Pole Toboggan Rental Shop is having a bad day. 
@@ -58,20 +78,4 @@ end
 
 =#
 
-global valid_part1 = 0
-global valid_part2 = 0
-for i = 1:length(pwords)
-    split_words = split(replace(pwords[i], ":" => ""))
-    letter_count = count_char(split_words[2], split_words[3])
-    specs = parse.(Int, split(split_words[1], "-"))
-    
-    if (letter_count >= specs[1] && letter_count <= specs[2])
-        global valid_part1 += 1
-    end
-
-    if count_char(split_words[2], split_words[3][specs]) == 1
-        global valid_part2 += 1
-    end
-end
-println("part 1: $valid_part1\npart 2: $valid_part2")
 
