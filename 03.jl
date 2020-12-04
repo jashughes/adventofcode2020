@@ -18,7 +18,7 @@ function slide(trees,dx, dy)
 end
     
 println(slide(trees, 3, 1))
-println(slide(trees, 1, 1) * slide(trees, 3, 1) * slide(trees, 5, 1) * slide(trees, 7, 1) * slide(trees, 1,2))
+println(prod(slide(trees, X, Y) for (X,Y) in [(1,1), (3,1), (5,1), (7,1), (1,2)]))
 
 #= Prompt 
 
