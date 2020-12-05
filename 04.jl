@@ -1,35 +1,13 @@
 #= Load data =# 
+passes = [Dict([split(x, ":") for x in split(y)]) for y in replace.(split(read("04.txt", String), "\r\n\r\n"), "\r\n" => " ")]
 
-passports = readlines("04.txt", keep=true)
-
-function tidy_passports(passports)
-    tidy = []
-    current_pass = Dict()
-    for i = 1:length(passports)
-        if passports[i] == "\r\n" || i == length(passports)
-            tidy = Base.vcat(tidy, [current_pass])
-            current_pass = Dict()
-        else
-            merge!(current_pass, Dict(split.(split(replace(passports[i], "\r\n" => "")), ":")))
-        end
-    end
-    return tidy
-end
-
-function check_passports(passes, required)
-    ok = 0
-    for i = 1:length(passes)
-        if check_fields(passes[i], required)
-            ok += tightened_restrictions(passes[i])
-        end
-    end
-    return ok
-end
-
+#= Part 1 Functions =#
+reqd = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
 function check_fields(pass, required)
     all([r in keys(pass) for r in required])
 end
 
+#= Part 2 Functions =#
 function tightened_restrictions(pass)
     byr = 1920 ≤ parse(Int, pass["byr"]) ≤ 2002
     iyr = 2010 ≤ parse(Int, pass["iyr"]) ≤ 2020
@@ -48,8 +26,11 @@ function parse_height(ht)
      (unit == "cm" && 150 ≤ parse(Int, ht[1:(ndigs - 2)]) ≤ 193)
 end
 
-passes = tidy_passports(passports)
-println(check_passports(passes, ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]))
+#= Solve =#
+pt1 = sum(check_fields(x, reqd) for x in passes)
+pt2 = sum(check_fields(x, reqd) && tightened_restrictions(x) for x in passes)
+
+println("Part 1: $pt1 \nPart 2: $pt2")
 
 #= --- Day 4: Passport Processing ---
 --- Part One ---
