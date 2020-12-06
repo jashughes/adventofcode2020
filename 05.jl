@@ -26,5 +26,5 @@ function find_seat(plane)
     end
 end
 
-println(maximum([get_seat_id(x) for x in seats]))
+println(maximum(get_seat_id(x) for x in seats))
 println(find_seat(fill_seats(seats)))
