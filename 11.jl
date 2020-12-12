@@ -1,7 +1,8 @@
-input = split.(readlines("11.txt"), "")
+input = reduce(hcat, split.(readlines("11.txt"), ""))
+
 
 function seatval(input, x, y)
-    0 < x ≤ length(input[1]) && 0 < y ≤ length(input) ? input[y][x] : 0
+    0 < x ≤ size(input, 1) && 0 < y ≤ size(input, 2) ? input[x, y] : 0
 end
 
 function neighbours(input, x, dx, y, dy)
@@ -20,18 +21,18 @@ end
 
 function fill_seats(input, seat_thresh, decision_maker)
     new_seats = deepcopy(input)
-    for i = 1:length(input[1]), j = 1:length(input)
-        if input[j][i] == "#" && check_seat(input, i, j, decision_maker) ≥ seat_thresh
-            new_seats[j][i] = "L"
-        elseif input[j][i] == "L" && check_seat(input, i, j, decision_maker) == 0
-            new_seats[j][i] = "#"
+    for i = 1:size(input, 1), j = 1:size(input, 2)
+        if input[i, j] == "#" && check_seat(input, i, j, decision_maker) ≥ seat_thresh
+            new_seats[i, j] = "L"
+        elseif input[i, j] == "L" && check_seat(input, i, j, decision_maker) == 0
+            new_seats[i, j] = "#"
         end
     end
     return new_seats
 end
 
 function count_filled(outseats)
-    sum([outseats[j][i] == "#" for j in 1:length(outseats), i in 1:length(outseats[1])])
+    sum([outseats[i, j] == "#" for j in 1:size(input, 2), i in 1:size(input, 1)])
 end
 
 function loop_seats(input, seat_thresh, decision_maker)
