@@ -1,11 +1,7 @@
 input = split.(readlines("11.txt"), "")
 
 function seatval(input, x, y)
-    if (x) ≤ 0 || (y) ≤ 0 || (x) > length(input[1]) || (y) > length(input)
-        return 0 
-    else
-        return input[y][x]
-    end
+    0 < x ≤ length(input[1]) && 0 < y ≤ length(input) ? input[y][x] : 0
 end
 
 function neighbours(input, x, dx, y, dy)
@@ -14,11 +10,7 @@ end
 
 function sight_line(input, x, dx, y, dy)
     sighted = seatval(input, x + dx, y + dy)
-    if sighted == "."
-        return sight_line(input, x + dx, dx, y + dy, dy)
-    else 
-        return sighted == "#"
-    end
+    sighted == "." ? sight_line(input, x + dx, dx, y + dy, dy) : sighted == "#"
 end
 
 function check_seat(input, x, y, decision_maker)
@@ -28,13 +20,11 @@ end
 
 function fill_seats(input, seat_thresh, decision_maker)
     new_seats = deepcopy(input)
-    for i = 1:length(input[1])
-        for j =1:length(input)
-            if input[j][i] == "#" && check_seat(input, i, j, decision_maker) ≥ seat_thresh
-                new_seats[j][i] = "L"
-            elseif input[j][i] == "L" && check_seat(input, i, j, decision_maker) == 0
-                new_seats[j][i] = "#"
-            end
+    for i = 1:length(input[1]), j = 1:length(input)
+        if input[j][i] == "#" && check_seat(input, i, j, decision_maker) ≥ seat_thresh
+            new_seats[j][i] = "L"
+        elseif input[j][i] == "L" && check_seat(input, i, j, decision_maker) == 0
+            new_seats[j][i] = "#"
         end
     end
     return new_seats
