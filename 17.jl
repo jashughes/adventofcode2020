@@ -20,14 +20,13 @@ end
 
 function cycle_d(d, ND)
     next_cycle = Dict()
-
-    di, dj, dk, dm = [key_extrema(d, dimen) for dimen = 1:4]
-
-    for i = di[1]:di[2], j = dj[1]:dj[2], k = dk[1]:dk[2], m = dm[1]:dm[2]
-        if get(d, [i, j, k, m], 0) == 1 && (2 ≤ sum_around([i, j, k, m], d, ND) ≤ 3)
-            next_cycle[[i, j, k, m]] = 1
-        elseif get(d, [i, j, k, m], 0) == 0 && (sum_around([i, j, k, m], d, ND) == 3)
-            next_cycle[[i, j, k, m]] = 1
+    dND = length(R) - ND
+    for a in Iterators.product([collect(x[1]:x[2]) for x in [key_extrema(d, dimen) for dimen = 1:ND]]...)
+        loc = collect(a)
+        if get(d, loc, 0) == 1 && (2 ≤ sum_around(loc, d, ND) ≤ 3)
+            next_cycle[loc] = 1
+        elseif get(d, loc, 0) == 0 && (sum_around(loc, d, ND) == 3)
+            next_cycle[loc] = 1
         end
     end
     return next_cycle
@@ -46,3 +45,15 @@ cycled1 = scan_d(d, 6, 3)
 cycled2 = scan_d(d, 6, 4)
 println("Part 1: ", length(cycled1))
 println("Part 2: ", length(cycled2))
+
+using Base.Cartesian
+
+@nloops 3 i d begin
+    println(@nref 3 d i)
+end
+
+
+for a in Iterators.product([collect(x[1]:x[2]) for x in [key_extrema(d, dimen) for dimen = 1:ND]]...)
+    loc = collect(a)
+    println(d[loc])
+end
