@@ -9,9 +9,8 @@ function create_d(input, ND)
     return d
 end
 
-function sum_around(R, d, ND)
-    dND = length(R) - ND
-    coords = [collect(a) for a in Iterators.product([(-1, 0, 1) for i = 1:ND]...) if sum(abs.(collect(a))) != 0]
+function sum_around(R, d)
+    coords = [collect(a) for a in Iterators.product([(-1, 0, 1) for i = 1:length(R)]...) if sum(abs.(collect(a))) != 0]
     sum(get(d, R .+ c, 0) for c in coords)
 end
 
@@ -23,9 +22,9 @@ function cycle_d(d, ND)
     next_cycle = Dict()
     for a in Iterators.product([collect(x[1]:x[2]) for x in [key_extrema(d, dimen) for dimen = 1:ND]]...)
         loc = collect(a)
-        if get(d, loc, 0) == 1 && (2 ≤ sum_around(loc, d, ND) ≤ 3)
+        if get(d, loc, 0) == 1 && (2 ≤ sum_around(loc, d) ≤ 3)
             next_cycle[loc] = 1
-        elseif get(d, loc, 0) == 0 && (sum_around(loc, d, ND) == 3)
+        elseif get(d, loc, 0) == 0 && (sum_around(loc, d) == 3)
             next_cycle[loc] = 1
         end
     end
@@ -35,7 +34,6 @@ end
 function scan_d(d, N, ND)
     cycled = d
     for cyc = 1:N
-        println("Cycle: ", cyc)
         cycled = cycle_d(cycled, ND)
     end
     return cycled
