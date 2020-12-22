@@ -2,15 +2,7 @@
 input = readlines("20.txt")
 
 function process_input(input)
-    ims = Dict()
-    i = 1
-    while i < length(input)
-        k = parse(Int, replace(replace(input[i], "Tile " => ""), ":" => ""))
-        v = input[(i + 1):(i + 10)]
-        ims[k] = v
-        i += 12
-    end
-    return ims
+    ims = Dict(parse(Int, replace(replace(input[i], "Tile " => ""), ":" => "")) => input[(i + 1):(i + 10)] for i = 1:12:length(input))
 end
 
 ims = process_input(input) # a 12x12 image?
