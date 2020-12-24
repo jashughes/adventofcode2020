@@ -151,11 +151,13 @@ function check_monster(arr, monster)
     unique(arr[m...] for m in monster) == ["#"]
 end
 
+function monster_size(monster)
+    maximum(m[1] for m in monster), maximum(m[2] for m in monster)
+end
+
 function find_monster(out, monster)
-    ml = maximum(m[2] for m in monster)
-    mw = maximum(m[1] for m in monster)
-    imax = size(out)[1] - ml
-    jmax = size(out)[2] - mw
+    mw, ml = monster_size(monster)
+    imax, jmax = (size(out)[1], size(out)[2]) .- (ml, mw)
     found = false
     for i = 1:imax, j = 1:jmax
         if check_monster(out[j:(j + mw - 1), i:(i + ml -1)], monster)
@@ -173,7 +175,6 @@ function scan_photo(out, monster, d = 96)
     new = rotl90(out)
     for i = 1:3
         if find_monster(new, monster)
-            println("success")
             return new
         else
             new = rotl90(new)
@@ -181,27 +182,15 @@ function scan_photo(out, monster, d = 96)
     end
     # flip
     new = new[1:d, d:-1:1]
-    if find_monster(new, monster)
-        println("success")
-        return new
-    end
-    # Rotate again
-    new = rotl90(new)
-    for i = 1:3
-        if find_monster(new, monster)
-            return new
-        else
-            new = rotl90(new)
-        end
-    end
+    return scan_photo(new, monster, d)
 end
 
 function replace_monster(oriented,offsets)
-    imax = size(out)[1] - 20
-    jmax = size(out)[2] - 3
+    mw, ml = monster_size(monster)
+    imax, jmax = (size(out)[1], size(out)[2]) .- (ml, mw)
     
     for i = 1:imax, j = 1:jmax
-        if check_monster(oriented[j:(j + 2), i:(i + 19)], offsets)
+        if check_monster(oriented[j:(j + mw -1), i:(i + + ml -1)], offsets)
             for o in offsets
                 oriented[j + o[1] - 1, i + o[2] - 1] = "O"
             end
