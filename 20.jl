@@ -1,17 +1,15 @@
 #= Read Input =#
 input = readlines("20.txt")
+monster = [[2, 1], [3, 2], [3, 5], [2, 6], [2, 7],
+[3, 8], [3, 11], [2, 12], [2, 13], [3, 14],
+[3, 17], [2, 18], [1, 19], [2, 19], [2, 20]]
 
 function process_input(input)
     ims = Dict(parse(Int, replace(replace(input[i], "Tile " => ""), ":" => "")) => input[(i + 1):(i + 10)] for i = 1:12:length(input))
 end
 
-ims = process_input(input) # a 12x12 image?
-
 function get_edges(im)
-    Dict("top" => [i for i in im[1]],
-         "bottom" => [i for i in im[10]],
-         "left" => [i[1] for i in im],
-         "right" => [i[10] for i in im])  
+    [[i for i in im[1]], [i for i in im[10]], [i[1] for i in im], [i[10] for i in im]] 
 end    
 
 function extract_all_edges(ims) 
@@ -19,8 +17,7 @@ function extract_all_edges(ims)
     edge_count = Dict()
     for k in keys(ims)
         edges[k] = get_edges(ims[k])
-        for ed in keys(edges[k])
-            curr = edges[k][ed]
+        for curr in edges[k]
             if curr in keys(edge_count)
                 edge_count[curr] += 1
             elseif reverse(curr) in keys(edge_count)
@@ -33,25 +30,17 @@ function extract_all_edges(ims)
     edges, edge_count
 end
 
-edges, edge_count = extract_all_edges(ims)
-
 function find_outside(edges, edge_count)
     outside_edges = Set([k for k in keys(edge_count) if edge_count[k] == 1])
-    outside_tiles = []
-
-    for k in keys(edges)
-        for ks in keys(edges[k])
-            if edges[k][ks] in outside_edges
-                push!(outside_tiles, k)
-            end
-        end
-    end
-
-    unique_outside = Set(outside_tiles)
-    corners = [i for i in unique_outside if length(findall(x -> x == i, outside_tiles)) > 1]
-    return unique(outside_tiles), corners
+    outside_tiles = [(k, length(intersect(edges[k], outside_edges))) for k in keys(edges) if length(intersect(edges[k], outside_edges)) > 0]
+    unique_outside = [x[1] for x in outside_tiles]
+    corners = [x[1] for x in outside_tiles if x[2] > 1]
+    return unique_outside, corners
 end
 
+
+ims = process_input(input) # a 12x12 image
+edges, edge_count = extract_all_edges(ims)
 outside_tiles, corners = find_outside(edges, edge_count)
 println("Part 1:", prod(corners))
 
@@ -161,36 +150,34 @@ function rm_borders(out)
     out[idx, idx]
 end
 
-function check_monster(arr)
-    unique([arr[2, 1], arr[3, 2], arr[3, 5], arr[2, 6], arr[2, 7],
-         arr[3, 8], arr[3, 11], arr[2, 12], arr[2, 13], arr[3, 14],
-         arr[3, 17], arr[2, 18], arr[1, 19], arr[2, 19], arr[2, 20],]) == ["#"]
+function check_monster(arr, monster)
+    unique(arr[m...] for m in monster) == ["#"]
 end
 
 compiled = image_borders(corners, edges, outside_tiles)
 fill_in_borders!(edges, compiled)
 out = render_image(compiled, ims)
 
-function find_monster(out)
+function find_monster(out, monster)
     imax = size(out)[1] - 20
     jmax = size(out)[2] - 3
     found = false
     for i = 1:imax, j = 1:jmax
-        if check_monster(out[j:(j + 2), i:(i + 19)])
+        if check_monster(out[j:(j + 2), i:(i + 19)], monster)
             found = true
         end
     end
     return found
 end
 
-function scan_photo(out, d = 96)
-    if find_monster(out)
+function scan_photo(out, monster, d = 96)
+    if find_monster(out, monster)
         return out
     end
     # Rotate
     new = rotl90(out)
     for i = 1:3
-        if find_monster(new)
+        if find_monster(new, monster)
             println("success")
             return new
         else
@@ -199,15 +186,14 @@ function scan_photo(out, d = 96)
     end
     # flip
     new = new[1:d, d:-1:1]
-    if find_monster(new)
+    if find_monster(new, monster)
         println("success")
         return new
     end
     # Rotate again
     new = rotl90(new)
     for i = 1:3
-        if find_monster(new)
-            println("success")
+        if find_monster(new, monster)
             return new
         else
             new = rotl90(new)
@@ -215,25 +201,12 @@ function scan_photo(out, d = 96)
     end
 end
 
-function get_test(test)
-    t2 = reshape(repeat([""], 24, 24), 24, :)
-    for i = 1:24, j = 1:24
-        t2[j, i] = test[j][i]
-    end
-    t2
-end
-
-
-
-function replace_monster(oriented)
+function replace_monster(oriented,offsets)
     imax = size(out)[1] - 20
     jmax = size(out)[2] - 3
-    offsets =[[2, 1], [3, 2], [3, 5], [2, 6], [2, 7],
-    [3, 8], [3, 11], [2, 12], [2, 13], [3, 14],
-    [3, 17], [2, 18], [1, 19], [2, 19], [2, 20]]
     
     for i = 1:imax, j = 1:jmax
-        if check_monster(oriented[j:(j + 2), i:(i + 19)])
+        if check_monster(oriented[j:(j + 2), i:(i + 19)], offsets)
             for o in offsets
                 oriented[j + o[1] - 1, i + o[2] - 1] = "O"
             end
@@ -245,9 +218,8 @@ end
 compiled = image_borders(corners, edges, outside_tiles)
 fill_in_borders!(edges, compiled)
 out = render_image(compiled, ims)
-oriented = scan_photo(out)
-find_monster(oriented)
-oriented = replace_monster(oriented)
+oriented = scan_photo(out, monster)
+oriented = replace_monster(oriented, monster)
 
 println("Part 2: ", length(oriented[oriented .== "#"]))
 
