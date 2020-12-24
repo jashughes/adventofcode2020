@@ -18,12 +18,10 @@ function extract_all_edges(ims)
     for k in keys(ims)
         edges[k] = get_edges(ims[k])
         for curr in edges[k]
-            if curr in keys(edge_count)
-                edge_count[curr] += 1
-            elseif reverse(curr) in keys(edge_count)
+            if reverse(curr) in keys(edge_count)
                 edge_count[reverse(curr)] += 1
             else
-                edge_count[curr] = 1
+                edge_count[curr] = get(edge_count, curr, 0) + 1
             end
         end
     end
@@ -37,7 +35,6 @@ function find_outside(edges, edge_count)
     corners = [x[1] for x in outside_tiles if x[2] > 1]
     return unique_outside, corners
 end
-
 
 ims = process_input(input) # a 12x12 image
 edges, edge_count = extract_all_edges(ims)
@@ -154,16 +151,14 @@ function check_monster(arr, monster)
     unique(arr[m...] for m in monster) == ["#"]
 end
 
-compiled = image_borders(corners, edges, outside_tiles)
-fill_in_borders!(edges, compiled)
-out = render_image(compiled, ims)
-
 function find_monster(out, monster)
-    imax = size(out)[1] - 20
-    jmax = size(out)[2] - 3
+    ml = maximum(m[2] for m in monster)
+    mw = maximum(m[1] for m in monster)
+    imax = size(out)[1] - ml
+    jmax = size(out)[2] - mw
     found = false
     for i = 1:imax, j = 1:jmax
-        if check_monster(out[j:(j + 2), i:(i + 19)], monster)
+        if check_monster(out[j:(j + mw - 1), i:(i + ml -1)], monster)
             found = true
         end
     end
